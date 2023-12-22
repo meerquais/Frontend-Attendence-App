@@ -34,7 +34,7 @@ export const getUserAction = createAsyncThunk("getUsers/gettingUsers", async ({}
     try{
         const token = localStorage.getItem("authToken")
        
-        const response = await axios.get("http://localhost:5000/api/v1/users",{ headers: { Authorization: `Bearer ${token}` } })
+        const response = await axios.get("https://nice-gray-prawn-tutu.cyclic.app/api/v1/users",{ headers: { Authorization: `Bearer ${token}` } })
         return response.data
     }catch(err){
         return rejectWithValue(err.response.data.message)

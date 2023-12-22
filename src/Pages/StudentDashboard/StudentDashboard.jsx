@@ -1,55 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { IoMdPerson, IoIosCalendar } from 'react-icons/io';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { checkInAction } from '../../store/Slices/checkInSlice'; // Update the path
 
 function StudentDashboard() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  const [checkInDisabled, setCheckInDisabled] = useState(false);
- 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      // Check if user has already checked in today
-      const lastCheckInTime = localStorage.getItem('lastCheckInTime');
-      if (lastCheckInTime) {
-        const currentTime = new Date().getTime();
-        const twentyFourHoursInMilliseconds = 24 * 60 * 60 * 1000;
-  
-        if (currentTime - parseInt(lastCheckInTime) < twentyFourHoursInMilliseconds) {
-          // User has already checked in today
-          setCheckInDisabled(true);
-        } else {
-          // User can check in again
-          setCheckInDisabled(false);
-        }
-      }
-    }, 2000); // 2 seconds
-  
-    // Cleanup the interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
-
-  const checkInState = useSelector((state) => state.checkIn);
 
   // Check if the user is authenticated
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     const user = JSON.parse(localStorage.getItem('authUser'));
 
+    console.log('Token:', token);
+    console.log('User:', user);
+
     if (!token || !user) {
       // Redirect to the login page if not authenticated
       navigate('/');
     }
   }, [navigate]);
-
-  useEffect(() => {
-    console.log('Check-in state:', checkInState);
-  }, [checkInState]);
 
   // Populate formData from authUser
   useEffect(() => {
@@ -124,95 +93,18 @@ function StudentDashboard() {
     }
   };
 
+  // Get the user's name from LocalStorage
   const userName = (localStorage.getItem('authUser') && JSON.parse(localStorage.getItem('authUser')).name) || 'name';
 
+  // Logout function
   const handleLogout = () => {
+    // Clear localStorage
     localStorage.removeItem('uid');
     localStorage.removeItem('user');
     localStorage.removeItem('profileImg');
+    // Redirect to the login page
     navigate('/');
   };
-
-  const [isCheckInModalOpen, setCheckInModalOpen] = useState(false);
-  const [checkInFile, setCheckInFile] = useState(null);
-
-  const handleCheckInModalOpen = () => {
-    setCheckInModalOpen(true);
-  };
-
-  const handleCheckInModalClose = () => {
-    setCheckInModalOpen(false);
-  };
-
-  const handleCheckInFileChange = (e) => {
-    const file = e.target.files[0];
-    setCheckInFile(file);
-  };
-
-  const handleCheckInSubmit = async () => {
-    console.log('handleCheckInSubmit called');
-  
-    const authUser = JSON.parse(localStorage.getItem('authUser'));
-  
-    if (!authUser || !authUser._id) {
-      console.error('Invalid user data');
-      return;
-    }
-  
-    // Check if user has already checked in today
-    const lastCheckInTime = localStorage.getItem('lastCheckInTime');
-    if (lastCheckInTime) {
-      const currentTime = new Date().getTime();
-      const twentyFourHoursInMilliseconds = 24 * 60 * 60 * 1000;
-  
-      if (currentTime - parseInt(lastCheckInTime) < twentyFourHoursInMilliseconds) {
-        // User has already checked in today
-        // Display alert
-        alert("You have already checked in today. Please come back tomorrow.");
-        return;
-      }
-    }
-  
-    // Display a cool-looking alert (you can use a library like SweetAlert for better styling)
-    alert("You have successfully checked in for today. Please come back tomorrow.");
-  
-    // Update UI - Change the color of Check-In button to red and disable it
-    // Example: Assuming you have a state variable to track check-in status
-    // setCheckInStatus(true);
-  
-    // Format the check-in time
-    const checkInTime = new Date().toLocaleString();
-  
-    // Update the attendance record
-    const attendanceRecord = {
-      id: authUser.roll_no,
-      fullName: authUser.name,
-      courseName: authUser.course_name,
-      checkInTime: checkInTime,
-    };
-  
-    // Retrieve existing records from localStorage
-    const existingRecords = localStorage.getItem('attendanceRecords')
-      ? JSON.parse(localStorage.getItem('attendanceRecords'))
-      : [];
-  
-    // Add the new record to the existing records
-    const updatedRecords = [...existingRecords, attendanceRecord];
-  
-    // Save the updated records in localStorage
-    localStorage.setItem('attendanceRecords', JSON.stringify(updatedRecords));
-  
-    // Save check-in status and time in localStorage
-    localStorage.setItem('lastCheckInTime', new Date().getTime().toString());
-  
-    // Close the Check In modal
-    setCheckInModalOpen(false);
-  };
-
-  // Use useEffect to log the checkInState changes
-  useEffect(() => {
-    console.log('Check-in state:', checkInState);
-  }, [checkInState]);
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
@@ -338,78 +230,36 @@ function StudentDashboard() {
         )}
 
         {currentPage === 'My Attendance' && (
-          <div className="mb-6">
-            {/* Button for Check In */}
-            <button
-  className={`bg-${checkInDisabled ? 'gray' : 'blue'}-500 text-white rounded-full p-2 mr-2`}
-  onClick={handleCheckInModalOpen}
-  disabled={checkInDisabled}
->
-  Check In
-</button>
-            {/* Check In Modal */}
-            {isCheckInModalOpen && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                <div className="bg-white p-8 max-w-md rounded-md">
-                  <h2 className="text-2xl font-bold mb-6">Check In</h2>
-                  <label htmlFor="checkInFile" className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload a file:
-                  </label>
-                  <input
-                    type="file"
-                    id="checkInFile"
-                    name="checkInFile"
-                    onChange={handleCheckInFileChange}
-                    className="mt-1 p-2 border border-gray-300 rounded-md w-full mb-4"
+          <div className="mb-6 max-h-96 overflow-y-auto relative">
+            {/* Button for Check In/Out */}
+            <div className="flex justify-end mb-4 sticky top-0 z-10">
+              <button  className="bg-blue-500 text-white rounded-full p-2 mr-2">Check In</button>
+              {/* <button className="bg-blue-500 text-white rounded-full p-2">Check Out</button> */}
+            </div>
+            <h2 className="text-xl font-bold mb-2">Attendance Information</h2>
+            <div className="flex bg-blue-500 p-3 rounded-lg">
+              <div className="w-1/6">ID</div>
+              <div className="w-1/6">Profile Img</div>
+              <div className="w-1/6">Full Name</div>
+              <div className="w-1/6">Checked In Time</div>
+              <div className="w-1/6">Checked Out Time</div>
+            </div>
+            {/* Actual data from LocalStorage */}
+            {[...Array(10)].map((_, index) => (
+              <div key={index} className="flex border-b py-2">
+                <div className="w-1/6">{index + 1}</div>
+                <div className="w-1/6">
+                  <img
+                    src={localStorage.getItem('profileImg') || '[Default Image URL]'}
+                    alt="Profile Img"
+                    className="rounded-full bg-blue-100 h-8 w-8 object-cover"
                   />
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={handleCheckInModalClose}
-                      className="mr-2 bg-blue-500 text-white rounded-full p-2"
-                    >
-                      Close
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCheckInSubmit}
-                      className="bg-blue-500 text-white rounded-full p-2"
-                    >
-                      Check In
-                    </button>
-                  </div>
                 </div>
+                <div className="w-1/6">John Doe</div>
+                <div className="w-1/6">09:00 AM</div>
+                <div className="w-1/6">05:00 PM</div>
               </div>
-            )}
-
-              
-            {/* Attendance Table */}
-
-            <div className="mt-4">
-  <h2 className="text-2xl font-bold mb-4">Attendance Table</h2>
-  <table className="min-w-full border bg-white">
-    <thead className="bg-blue-500 text-white">
-      <tr>
-        <th className="py-2 px-4">Full Name</th>
-        <th className="py-2 px-4">ID</th>
-        <th className="py-2 px-4">Course Name</th>
-        <th className="py-2 px-4">Check-In Time</th>
-      </tr>
-    </thead>
-    <tbody>
-      {/* Retrieve attendance records from localStorage */}
-      {localStorage.getItem('attendanceRecords') &&
-        JSON.parse(localStorage.getItem('attendanceRecords')).map((record) => (
-          <tr className="justify-center text-center" key={record.id}>
-            <td className="py-2 px-4">{record.fullName}</td>
-            <td className="py-2 px-4">{record.id}</td>
-            <td className="py-2 px-4">{record.courseName || '-'}</td>
-            <td className="py-2 px-4">{record.checkInTime}</td>
-          </tr>
-        ))}
-    </tbody>
-  </table>
-</div>
+            ))}
           </div>
         )}
       </div>

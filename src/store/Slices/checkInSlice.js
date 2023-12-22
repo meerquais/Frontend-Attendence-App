@@ -14,7 +14,7 @@ export const checkInAction = createAsyncThunk(
       const token = localStorage.getItem('authToken');
 
       // Make the necessary API call for check-in using the "/api/v1/checkin" endpoint
-      const response = await axios.post('http://localhost:5000/api/v1/checkin', formData, {
+      const response = await axios.post('https://nice-gray-prawn-tutu.cyclic.app/api/v1/checkin', formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
