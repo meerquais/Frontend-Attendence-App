@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginAction } from '../../store/slices/loginSlice';
+import { loginAction } from '../../store/Slices/loginSlice';
 
 
 function Copyright(props) {
