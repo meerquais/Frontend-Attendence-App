@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
-import loginSlice from "./Slices/loginSlice";
+import loginSlice from "./Slices/loginSlice.js";
 import createUserSlice from './Slices/createUserSlice.js'
 import getUsersSlice from './Slices/getUserSlice.js'
 import AttendenceSlice from './Slices/getAttendanceSlice.js'
