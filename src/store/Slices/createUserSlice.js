@@ -35,7 +35,7 @@ export const createUserAction = createAsyncThunk("login/auth", async ({email , p
     try{
         const token = localStorage.getItem("authToken")
        
-        const response = await axios.post("https://nice-gray-prawn-tutu.cyclic.app/api/v1/createuser",{email , password, phoneNo : phoneNumber, courseName, name :fullName, picture:imgUrl},{ headers: { Authorization: `Bearer ${token}` } })
+        const response = await axios.post("https://attendance-app-backend-alpha.vercel.app/api/v1/createuser",{email , password, phoneNo : phoneNumber, courseName, name :fullName, picture:imgUrl},{ headers: { Authorization: `Bearer ${token}` } })
         dispatch(getUserAction({}))
         return response.data
     }catch(err){

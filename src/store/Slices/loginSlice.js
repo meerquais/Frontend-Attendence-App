@@ -32,7 +32,7 @@ const loginSlice = createSlice({
 export const loginAction = createAsyncThunk("login/auth", async ({email , password , navigate},{rejectWithValue}) => {
     
     try{
-        const response = await axios.post("https://nice-gray-prawn-tutu.cyclic.app/api/v1/userlogin",{email,password})
+        const response = await axios.post("https://attendance-app-backend-alpha.vercel.app/api/v1/userlogin",{email,password})
         localStorage.setItem("authToken",response.data.token)
         localStorage.setItem("authUser",JSON.stringify(response.data.data))
         navigate("/admin")

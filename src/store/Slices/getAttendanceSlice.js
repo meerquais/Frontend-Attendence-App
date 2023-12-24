@@ -34,7 +34,7 @@ export const AttendenceAction = createAsyncThunk("attendence/getAttendence", asy
     try{
         const token = localStorage.getItem("authToken")
        
-        const response = await axios.get("https://nice-gray-prawn-tutu.cyclic.app/api/v1/attendance",{ headers: { Authorization: `Bearer ${token}` } })
+        const response = await axios.get("https://attendance-app-backend-alpha.vercel.app/api/v1/attendance",{ headers: { Authorization: `Bearer ${token}` } })
         return response.data
     }catch(err){
         return rejectWithValue(err.response.data.message)
